@@ -55,4 +55,17 @@ public class TransactionRepository {
         }
     }
 
+    public List<Transaction> findAll() {
+        String sql = "SELECT * FROM transactions ORDER BY txn_date DESC, id DESC";
+        List<Transaction> results = new ArrayList<>();
+        try (Statement statement = databaseManager.getConnection().createStatement();
+             ResultSet rs = statement.executeQuery(sql)) {
+            while (rs.next()) {
+                results.add(map(rs));
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to fetch transactions", e);
+        }
+    }
 }
