@@ -89,5 +89,19 @@ public class Main {
             }
         }
     }
-
+    /** Splits a line into argv tokens, respecting single/double quoted substrings (for --description "..."). */
+    static String[] tokenize(String line) {
+        List<String> tokens = new ArrayList<>();
+        Matcher matcher = TOKEN_PATTERN.matcher(line);
+        while (matcher.find()) {
+            if (matcher.group(1) != null) {
+                tokens.add(matcher.group(1));
+            } else if (matcher.group(2) != null) {
+                tokens.add(matcher.group(2));
+            } else {
+                tokens.add(matcher.group(3));
+            }
+        }
+        return tokens.toArray(new String[0]);
+    }
 }
