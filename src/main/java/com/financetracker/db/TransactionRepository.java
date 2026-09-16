@@ -68,4 +68,91 @@ public class TransactionRepository {
             throw new IllegalStateException("Failed to fetch transactions", e);
         }
     }
+
+    public Optional<Transaction> findById(long id) {
+        String sql = "SELECT * FROM transactions WHERE id = ?";
+        try (PreparedStatement ps = databaseManager.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(map(rs));
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to fetch transaction " + id, e);
+        }
+    }
+
+    public List<Transaction> findByFilters(TransactionType type, String category,
+                                            LocalDate from, LocalDate to) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM transactions WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (type != null) {
+            sql.append(" AND type = ?");
+            params.add(type.name());
+        }
+        if (category != null && !category.isBlank()) {
+            sql.append(" AND LOWER(category) = LOWER(?)");
+            params.add(category);
+        }
+        if (from != null) {
+            sql.append(" AND txn_date >= ?");
+            params.add(java.sql.Date.valueOf(from));
+        }
+        if (to != null) {
+            sql.append(" AND txn_date <= ?");
+            params.add(java.sql.Date.valueOf(to));
+        }
+        sql.append(" ORDER BY txn_date DESC, id DESC");
+
+        try (PreparedStatement ps = databaseManager.getConnection().prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Transaction> results = new ArrayList<>();
+                while (rs.next()) {
+                    results.add(map(rs));
+                }
+                return results;
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to filter transactions", e);
+        }
+    }
+
+    public boolean deleteById(long id) {
+        String sql = "DELETE FROM transactions WHERE id = ?";
+        try (PreparedStatement ps = databaseManager.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to delete transaction " + id, e);
+        }
+    }
+
+    /** Wipes all rows without dropping the table. */
+    public void deleteAll() {
+        try (Statement statement = databaseManager.getConnection().createStatement()) {
+            statement.execute("DELETE FROM transactions");
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to clear transactions", e);
+        }
+    }
+
+    private Transaction map(ResultSet rs) throws SQLException {
+        Transaction txn = new Transaction();
+        txn.setId(rs.getLong("id"));
+        txn.setType(TransactionType.valueOf(rs.getString("type")));
+        txn.setOriginalAmount(rs.getBigDecimal("original_amount"));
+        txn.setOriginalCurrency(rs.getString("original_currency"));
+        txn.setConvertedAmount(rs.getBigDecimal("converted_amount"));
+        txn.setBaseCurrency(rs.getString("base_currency"));
+        txn.setCategory(rs.getString("category"));
+        txn.setDescription(rs.getString("description"));
+        txn.setDate(rs.getDate("txn_date").toLocalDate());
+        return txn;
+    }
 }
