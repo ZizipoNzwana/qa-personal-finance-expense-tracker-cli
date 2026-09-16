@@ -4,33 +4,43 @@ WTC-E4L3VNTR
 
 ## **1. About The Project:** 
 
-This is a command‑line tool for tracking everyday income and expenses, built to be fast and simple without the extra features most budgeting apps include. It focuses on logging what 
-comes in and what goes out, then showing whether you’re ahead or behind once both sides are counted. Expenses are usually logged more often than income, but the balance only makes sense 
-because both are included. Beyond basic transaction logging, the tool supports currency conversion: if you spend in another currency (like euros or GBP), it looks up the live exchange
-rate via the free Frankfurter API and stores the converted amount in your base currency so totals remain meaningful. 
-All data is stored locally in an embedded H2 database, with no server or account required — just build the JAR and start using it.
-
+This solves a simple problem: most budgeting apps are more than what a single person needs day to day, and a lot of 
+people are perfectly happy logging a transaction from a terminal if it's fast and doesn't get in the way. 
+So this project focuses on exactly that — logging what comes in and what goes out, and seeing where you actually stand 
+between the two, without much else in the way. It tracks both sides on purpose, income and expenses, because the point 
+isn't just seeing where your money went, it's seeing whether you're ahead or behind once both are counted. In practice,
+expenses still end up logged far more often than income — a paycheck is one entry a month, coffee and groceries are 
+dozens — but the balance the app shows you only means anything because both sides are there. The feature that goes beyond
+basic transaction logging is currency conversion. If you spend money in a currency that isn't your own — a hotel booked in
+euros, a subscription billed in GBP — the tool looks up the live exchange rate and stores the converted amount in your 
+base currency, so your totals and balance stay meaningful even if half your transactions came in different currencies. 
+It talks to Frankfurter, a free public exchange rate API, for that. Everything is stored locally in an embedded H2 
+database, so there's no server to run and no account to sign up for. You just build the jar and go.
 
 ## **2. Tools Used:**
 
 **-Picocli:**  
-Instead of manually writing option definitions and parsing, you just annotate fields. It also generates help text and validates arguments automatically.
-Since this project uses multiple subcommands (add-expense, add-income, list, filter, convert, summary), Picocli’s built‑in subcommand support saved a lot of repetitive code.
+Instead of manually writing option definitions and parsing, you just annotate fields. It also generates help text 
+and validates arguments automatically. Since this project uses multiple subcommands (add-expense, add-income, list, 
+filter, convert, summary), Picocli’s built‑in subcommand support saved a lot of repetitive code.
 
 **-H2 Database:**  
-Runs in‑process, no installation or server needed, but still uses standard JDBC/SQL. In file mode, data persists between runs; in memory mode, it’s perfect for fast integration tests. Switching between the two is just a one‑line change.
+Runs in‑process, no installation or server needed, but still uses standard JDBC/SQL. In file mode, data persists 
+between runs; in memory mode, it’s perfect for fast integration tests. Switching between the two is just a one‑line change.
 
 **-Java HttpClient:**  
 The built‑in client was enough for simple GET requests to the exchange rate API. No need for heavier libraries like OkHttp.
 
 **-Jackson:**  
-Used for JSON parsing. It’s the standard in Java, and the API response was simple enough that lightweight JsonNode traversal was clearer than generating model classes.
+Used for JSON parsing. It’s the standard in Java, and the API response was simple enough that lightweight JsonNode 
+traversal was clearer than generating model classes.
 
 **-JUnit 5 + Mockito:**  
 Standard combo for unit testing. Keeps business logic testable without needing a live database or network.
 
 **-WireMock:**  
-Provides a fake HTTP server for testing API calls. This avoids hitting the real Frankfurter API, making tests faster and more reliable. It also lets you simulate tricky cases like errors or dropped connections.
+Provides a fake HTTP server for testing API calls. This avoids hitting the real Frankfurter API, making tests 
+faster and more reliable. It also lets you simulate tricky cases like errors or dropped connections.
 
 **-REST Assured:**  
 Used alongside WireMock in one test to confirm stubbed responses look correct before relying on them.
@@ -39,8 +49,7 @@ Used alongside WireMock in one test to confirm stubbed responses look correct be
 Measures test coverage so you know how much of the codebase is exercised.
 
 **-GitHub Actions:**  
-Automates builds and te:sts on every pull request, ensuring checks run consistently without relying on developers to
-remember.
+Automates builds and tests on every pull request, ensuring checks run consistently. 
 
 
 ## ****3. Project Structure/How The Project Is Organised:****
