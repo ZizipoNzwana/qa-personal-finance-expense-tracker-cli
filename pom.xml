@@ -101,14 +101,13 @@
                 <version>3.2.5</version>
                 <configuration>
                     <!-- @{argLine} preserves the Jacoco agent injected by prepare-agent;
-                         the extra flag fixes Mockito's inline mock maker failing to
+                         the extra flags fix Mockito's inline mock maker failing to
                          self-attach on some Linux/WSL environments -->
-                    <argLine>@{argLine} -Djdk.attach.allowAttachSelf=true</argLine>
-                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
+                    <argLine>@{argLine} -Djdk.attach.allowAttachSelf=true -Dnet.bytebuddy.experimental=true</argLine>
                 </configuration>
             </plugin>
 
-            <!-- Build a runnable "fat" jar with all dependencies bundled -->
+            <!-- Build a runnable jar with all dependencies bundled -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
