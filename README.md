@@ -4,18 +4,19 @@ WTC-E4L3VNTR
 
 ## **1. About The Project:** 
 
-This solves a simple problem: most budgeting apps are more than what a single person needs day to day, and a lot of 
-people are perfectly happy logging a transaction from a terminal if it's fast and doesn't get in the way. 
-So this project focuses on exactly that — logging what comes in and what goes out, and seeing where you actually stand 
-between the two, without much else in the way. It tracks both sides on purpose, income and expenses, because the point 
-isn't just seeing where your money went, it's seeing whether you're ahead or behind once both are counted. In practice,
-expenses still end up logged far more often than income — a paycheck is one entry a month, coffee and groceries are 
-dozens — but the balance the app shows you only means anything because both sides are there. The feature that goes beyond
-basic transaction logging is currency conversion. If you spend money in a currency that isn't your own — a hotel booked in
-euros, a subscription billed in GBP — the tool looks up the live exchange rate and stores the converted amount in your 
-base currency, so your totals and balance stay meaningful even if half your transactions came in different currencies. 
-It talks to Frankfurter, a free public exchange rate API, for that. Everything is stored locally in an embedded H2 
-database, so there's no server to run and no account to sign up for. You just build the jar and go.
+This project solves a straightforward problem: most budgeting applications are far more complex than what an individual 
+actually needs day to day, and many people are perfectly content to log a transaction from a terminal if it is quick and
+does not get in the way. The focus here is exactly that, recording what comes in and what goes out, and seeing where you
+truly stand between the two, without unnecessary extras. It deliberately tracks both sides, income and expenditure, 
+because the point is not only to see where your money went, but to know whether you are ahead or behind once both are 
+counted. In practice, expenses are logged far more often than income. A salary might be one entry a month, while coffee
+and groceries are more, but the balance only has meaning because both sides are included.
+
+The feature that goes beyond basic transaction logging is currency conversion. If you spend money in a currency that is 
+not your own, for example a hotel booked in euros, the tool looks up the live exchange rate and stores the converted 
+amount in your base currency. That way, your totals and balance remain meaningful even if half your transactions are in 
+different currencies. It uses Frankfurter, a free public exchange rate API, for this.
+
 
 ## **2. Tools Used:**
 
