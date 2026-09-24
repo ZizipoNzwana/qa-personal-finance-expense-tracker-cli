@@ -2,7 +2,7 @@
 
 WTC-E4L3VNTR
 
-## **1. About The Project:** 
+## **1. About:** 
 
 This project solves a straightforward problem: most budgeting applications are far more complex than what an individual 
 actually needs day to day, and many people are perfectly content to log a transaction from a terminal if it is quick and
