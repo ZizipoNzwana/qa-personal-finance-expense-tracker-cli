@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DatabaseManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Personal Finance and Expense Tracker CLI</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.db</a> &gt; <span class="el_source">DatabaseManager.java</span></div><h1>DatabaseManager.java</h1><pre class="source lang-java linenums">package com.financetracker.db;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+/**
+ * Owns the JDBC connection to the embedded H2 database and creates the schema
+ * (accounts, categories, transactions) on first use.
+ *
+ * H2 runs in embedded &quot;file&quot; mode so data survives between CLI invocations,
+ * e.g. jdbc:h2:file:./data/financetracker
+ */
+public final class DatabaseManager {
+
+    private static final String DEFAULT_DB_PATH = &quot;./data/financetracker&quot;;
+
+    private final String jdbcUrl;
+    private final String user;
+    private final String password;
+    private Connection connection;
+
+    public DatabaseManager() {
+<span class="nc" id="L25">        this(DEFAULT_DB_PATH);</span>
+<span class="nc" id="L26">    }</span>
+
+    /** Allows tests the user to point at an alternate file/in-memory database. */
+<span class="fc" id="L29">    public DatabaseManager(String dbPath) {</span>
+        // AUTO_SERVER=TRUE lets multiple processes share a file-based database,
+        // but H2 rejects it outright for in-memory databases,
+        // so it's only appended for file-based paths.
+<span class="fc" id="L33">        boolean inMemory = dbPath.startsWith(&quot;mem:&quot;);</span>
+<span class="fc" id="L34">        this.jdbcUrl = &quot;jdbc:h2:&quot; + dbPath</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">                + (inMemory ? &quot;&quot; : &quot;;AUTO_SERVER=TRUE&quot;)</span>
+                + &quot;;DB_CLOSE_DELAY=-1&quot;;
+<span class="fc" id="L37">        this.user = &quot;sa&quot;;</span>
+<span class="fc" id="L38">        this.password = &quot;&quot;;</span>
+<span class="fc" id="L39">    }</span>
+
+    public Connection getConnection() {
+        try {
+<span class="pc bpc" id="L43" title="1 of 4 branches missed.">            if (connection == null || connection.isClosed()) {</span>
+<span class="fc" id="L44">                connection = DriverManager.getConnection(jdbcUrl, user, password);</span>
+            }
+<span class="fc" id="L46">            return connection;</span>
+<span class="nc" id="L47">        } catch (SQLException e) {</span>
+<span class="nc" id="L48">            throw new IllegalStateException(&quot;Could not connect to H2 database at &quot; + jdbcUrl, e);</span>
+        }
+    }
+
+    public void initSchema() {
+<span class="fc" id="L53">        String accounts = &quot;&quot;&quot;</span>
+                CREATE TABLE IF NOT EXISTS accounts (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(100) NOT NULL UNIQUE,
+                    base_currency VARCHAR(3) NOT NULL
+                )
+                &quot;&quot;&quot;;
+<span class="fc" id="L60">        String categories = &quot;&quot;&quot;</span>
+                CREATE TABLE IF NOT EXISTS categories (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(100) NOT NULL UNIQUE,
+                    type VARCHAR(10) NOT NULL
+                )
+                &quot;&quot;&quot;;
+<span class="fc" id="L67">        String transactions = &quot;&quot;&quot;</span>
+                CREATE TABLE IF NOT EXISTS transactions (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    type VARCHAR(10) NOT NULL,
+                    original_amount DECIMAL(19,2) NOT NULL,
+                    original_currency VARCHAR(3) NOT NULL,
+                    converted_amount DECIMAL(19,2) NOT NULL,
+                    base_currency VARCHAR(3) NOT NULL,
+                    category VARCHAR(100) NOT NULL,
+                    description VARCHAR(500),
+                    txn_date DATE NOT NULL
+                )
+                &quot;&quot;&quot;;
+
+<span class="fc" id="L81">        try (Statement statement = getConnection().createStatement()) {</span>
+<span class="fc" id="L82">            statement.execute(accounts);</span>
+<span class="fc" id="L83">            statement.execute(categories);</span>
+<span class="fc" id="L84">            statement.execute(transactions);</span>
+<span class="nc" id="L85">        } catch (SQLException e) {</span>
+<span class="nc" id="L86">            throw new IllegalStateException(&quot;Failed to initialize database schema&quot;, e);</span>
+<span class="fc" id="L87">        }</span>
+<span class="fc" id="L88">    }</span>
+
+    public void close() {
+        try {
+<span class="pc bpc" id="L92" title="2 of 4 branches missed.">            if (connection != null &amp;&amp; !connection.isClosed()) {</span>
+<span class="fc" id="L93">                connection.close();</span>
+            }
+<span class="nc" id="L95">        } catch (SQLException e) {</span>
+<span class="fc" id="L96">        }</span>
+<span class="fc" id="L97">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

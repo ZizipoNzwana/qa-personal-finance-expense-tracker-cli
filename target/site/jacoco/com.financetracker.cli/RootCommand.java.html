@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RootCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Personal Finance and Expense Tracker CLI</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.cli</a> &gt; <span class="el_source">RootCommand.java</span></div><h1>RootCommand.java</h1><pre class="source lang-java linenums">package com.financetracker.cli;
+
+import picocli.CommandLine.Command;
+
+/**
+ * Top-level command. Running with no subcommand (in batch mode) just prints help;
+ * the interactive REPL in {@code Main} is the primary way this app is used.
+ */
+// Subcommands are registered manually in Main (as instances) because each one
+// needs an AppContext injected via its constructor rather than picocli's
+// default no-arg reflection-based instantiation.
+@Command(
+        name = &quot;finance-tracker&quot;,
+        mixinStandardHelpOptions = true,
+        version = &quot;finance-tracker-cli 1.0.0&quot;,
+        description = &quot;Personal Finance &amp; Expense Tracker CLI&quot;
+)
+<span class="fc" id="L18">public class RootCommand implements Runnable {</span>
+    @Override
+    public void run() {
+<span class="nc" id="L21">        System.out.println(&quot;Use --help to see available commands, or run with no arguments for interactive mode.&quot;);</span>
+<span class="nc" id="L22">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

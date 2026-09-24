@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Main.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Personal Finance and Expense Tracker CLI</a> &gt; <a href="index.source.html" class="el_package">com.financetracker</a> &gt; <span class="el_source">Main.java</span></div><h1>Main.java</h1><pre class="source lang-java linenums">package com.financetracker;
+
+import com.financetracker.cli.AppContext;
+import com.financetracker.cli.CliFactory;
+import picocli.CommandLine;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Entry point.
+ *
+ * Two modes of operation:
+ *  - Batch mode: {@code java -jar finance-tracker-cli.jar add-expense --amount 50 --category food}
+ *    executes one command and exits (handy for scripting/CI).
+ *  - Interactive mode: run with no arguments to enter a REPL where commands can
+ *    be typed one after another, e.g.:
+ *      finance-tracker&gt; add-expense --amount 50 --category food
+ *      finance-tracker&gt; list
+ *      finance-tracker&gt; exit
+ */
+<span class="nc" id="L27">public class Main {</span>
+
+    private static final String BASE_CURRENCY_ENV = &quot;FINANCE_TRACKER_BASE_CURRENCY&quot;;
+<span class="fc" id="L30">    private static final Pattern TOKEN_PATTERN = Pattern.compile(&quot;\&quot;([^\&quot;]*)\&quot;|'([^']*)'|(\\S+)&quot;);</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L33">        String baseCurrency = System.getenv().getOrDefault(BASE_CURRENCY_ENV, &quot;ZAR&quot;);</span>
+<span class="nc" id="L34">        AppContext context = new AppContext(baseCurrency);</span>
+
+        try {
+<span class="nc bnc" id="L37" title="All 2 branches missed.">            if (args.length &gt; 0) {</span>
+                // Batch mode: run exactly one command, then exit (useful for CI / scripting).
+<span class="nc" id="L39">                int exitCode = CliFactory.build(context).execute(args);</span>
+<span class="nc" id="L40">                System.exit(exitCode);</span>
+<span class="nc" id="L41">            } else {</span>
+<span class="nc" id="L42">                runInteractive(context, baseCurrency);</span>
+            }
+        } finally {
+<span class="nc" id="L45">            context.close();</span>
+        }
+<span class="nc" id="L47">    }</span>
+
+    private static void runInteractive(AppContext context, String baseCurrency) {
+<span class="nc" id="L50">        System.out.println(&quot;Personal Finance &amp; Expense Tracker CLI (interactive mode)&quot;);</span>
+<span class="nc" id="L51">        System.out.println(&quot;Base currency: &quot; + baseCurrency</span>
+                + &quot;  (set &quot; + BASE_CURRENCY_ENV + &quot; env var to change)&quot;);
+<span class="nc" id="L53">        System.out.println(&quot;Type a command (add-expense, add-income, list, filter, convert, summary),&quot;);</span>
+<span class="nc" id="L54">        System.out.println(&quot;'help' for details on a command, or 'exit'/'quit' to leave.\n&quot;);</span>
+
+<span class="nc" id="L56">        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));</span>
+<span class="nc" id="L57">        CommandLine cli = CliFactory.build(context);</span>
+
+        while (true) {
+<span class="nc" id="L60">            System.out.print(&quot;finance-tracker&gt; &quot;);</span>
+<span class="nc" id="L61">            System.out.flush();</span>
+            String line;
+            try {
+<span class="nc" id="L64">                line = reader.readLine();</span>
+<span class="nc" id="L65">            } catch (Exception e) {</span>
+<span class="nc" id="L66">                break; // stdin closed</span>
+<span class="nc" id="L67">            }</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (line == null) {</span>
+<span class="nc" id="L69">                break; // EOF (e.g. piped input exhausted)</span>
+            }
+<span class="nc" id="L71">            line = line.trim();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (line.isEmpty()) {</span>
+<span class="nc" id="L73">                continue;</span>
+            }
+<span class="nc bnc" id="L75" title="All 4 branches missed.">            if (line.equalsIgnoreCase(&quot;exit&quot;) || line.equalsIgnoreCase(&quot;quit&quot;)) {</span>
+<span class="nc" id="L76">                System.out.println(&quot;Goodbye!&quot;);</span>
+<span class="nc" id="L77">                break;</span>
+            }
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (line.equalsIgnoreCase(&quot;help&quot;)) {</span>
+<span class="nc" id="L80">                cli.usage(System.out);</span>
+<span class="nc" id="L81">                continue;</span>
+            }
+
+<span class="nc" id="L84">            String[] tokens = tokenize(line);</span>
+            try {
+<span class="nc" id="L86">                cli.execute(tokens);</span>
+<span class="nc" id="L87">            } catch (Exception e) {</span>
+<span class="nc" id="L88">                System.err.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L89">            }</span>
+<span class="nc" id="L90">        }</span>
+<span class="nc" id="L91">    }</span>
+    /** Splits a line into argv tokens, respecting single/double quoted substrings (for --description &quot;...&quot;). */
+    static String[] tokenize(String line) {
+<span class="fc" id="L94">        List&lt;String&gt; tokens = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L95">        Matcher matcher = TOKEN_PATTERN.matcher(line);</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        while (matcher.find()) {</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">            if (matcher.group(1) != null) {</span>
+<span class="fc" id="L98">                tokens.add(matcher.group(1));</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            } else if (matcher.group(2) != null) {</span>
+<span class="fc" id="L100">                tokens.add(matcher.group(2));</span>
+            } else {
+<span class="fc" id="L102">                tokens.add(matcher.group(3));</span>
+            }
+        }
+<span class="fc" id="L105">        return tokens.toArray(new String[0]);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

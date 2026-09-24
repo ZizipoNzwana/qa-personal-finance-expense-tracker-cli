@@ -20,11 +20,9 @@ public class AppContext {
     private final TransactionService transactionService;
     private String baseCurrency;
 
-    public AppContext(String baseCurrency) {
-        this(new DatabaseManager(), new ExchangeRateService(), baseCurrency);
+    public AppContext(String baseCurrency) {this(new DatabaseManager(), new ExchangeRateService(), baseCurrency);
     }
 
-    /** Test-friendly constructor allowing injection of a fake/in-memory DB and exchange rate service. */
     public AppContext(DatabaseManager databaseManager, ExchangeRateService exchangeRateService, String baseCurrency) {
         this.databaseManager = databaseManager;
         this.databaseManager.initSchema();

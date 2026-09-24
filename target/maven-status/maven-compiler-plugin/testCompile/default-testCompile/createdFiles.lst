@@ -1,0 +1,6 @@
+com/financetracker/service/BudgetServiceTest.class
+com/financetracker/service/ExchangeRateServiceTest.class
+com/financetracker/service/TransactionServiceTest.class
+com/financetracker/MainTokenizeTest.class
+com/financetracker/db/TransactionRepositoryTest.class
+com/financetracker/cli/CliEndToEndTest.class

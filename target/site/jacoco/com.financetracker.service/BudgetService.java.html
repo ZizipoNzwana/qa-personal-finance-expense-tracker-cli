@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Personal Finance and Expense Tracker CLI</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.service</a> &gt; <span class="el_source">BudgetService.java</span></div><h1>BudgetService.java</h1><pre class="source lang-java linenums">package com.financetracker.service;
+
+import com.financetracker.db.TransactionRepository;
+import com.financetracker.model.Transaction;
+import com.financetracker.model.TransactionType;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * Aggregation/reporting logic over stored transactions: totals, balance, and
+ * per-category breakdowns. Kept independent of the CLI and DB wiring so it is
+ * easy to unit test with a mocked {@link TransactionRepository}.
+ */
+public class BudgetService {
+
+    private final TransactionRepository repository;
+
+<span class="fc" id="L23">    public BudgetService(TransactionRepository repository) {</span>
+<span class="fc" id="L24">        this.repository = repository;</span>
+<span class="fc" id="L25">    }</span>
+
+    public BigDecimal totalIncome() {
+<span class="fc" id="L28">        return sum(repository.findAll(), TransactionType.INCOME);</span>
+    }
+
+    public BigDecimal totalExpenses() {
+<span class="fc" id="L32">        return sum(repository.findAll(), TransactionType.EXPENSE);</span>
+    }
+
+    public BigDecimal balance() {
+<span class="fc" id="L36">        List&lt;Transaction&gt; all = repository.findAll();</span>
+<span class="fc" id="L37">        return all.stream()</span>
+<span class="fc" id="L38">                .map(Transaction::signedAmount)</span>
+<span class="fc" id="L39">                .reduce(BigDecimal.ZERO, BigDecimal::add)</span>
+<span class="fc" id="L40">                .setScale(2, RoundingMode.HALF_UP);</span>
+    }
+
+    public Map&lt;String, BigDecimal&gt; expensesByCategory() {
+<span class="fc" id="L44">        return repository.findAll().stream()</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">                .filter(t -&gt; t.getType() == TransactionType.EXPENSE)</span>
+<span class="fc" id="L46">                .collect(Collectors.groupingBy(</span>
+                        Transaction::getCategory,
+<span class="fc" id="L48">                        Collectors.reducing(BigDecimal.ZERO, Transaction::getConvertedAmount, BigDecimal::add)));</span>
+    }
+
+    public boolean isOverBudget(BigDecimal monthlyBudget, LocalDate month) {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (monthlyBudget == null) {</span>
+<span class="fc" id="L53">            throw new IllegalArgumentException(&quot;Monthly budget cannot be null&quot;);</span>
+        }
+<span class="fc" id="L55">        LocalDate start = month.withDayOfMonth(1);</span>
+<span class="fc" id="L56">        LocalDate end = month.withDayOfMonth(month.lengthOfMonth());</span>
+
+<span class="fc" id="L58">        BigDecimal spent = repository.findByFilters(TransactionType.EXPENSE, null, start, end)</span>
+<span class="fc" id="L59">                .stream()</span>
+<span class="fc" id="L60">                .map(Transaction::getConvertedAmount)</span>
+<span class="fc" id="L61">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        return spent.compareTo(monthlyBudget) &gt; 0;</span>
+    }
+
+    private BigDecimal sum(List&lt;Transaction&gt; transactions, TransactionType type) {
+<span class="fc" id="L67">        return transactions.stream()</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">                .filter(t -&gt; t.getType() == type)</span>
+<span class="fc" id="L69">                .map(Transaction::getConvertedAmount)</span>
+<span class="fc" id="L70">                .reduce(BigDecimal.ZERO, BigDecimal::add)</span>
+<span class="fc" id="L71">                .setScale(2, RoundingMode.HALF_UP);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

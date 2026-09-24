@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddExpenseCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Personal Finance and Expense Tracker CLI</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.cli</a> &gt; <span class="el_source">AddExpenseCommand.java</span></div><h1>AddExpenseCommand.java</h1><pre class="source lang-java linenums">package com.financetracker.cli;
+
+import com.financetracker.exception.ExchangeRateException;
+import com.financetracker.exception.ValidationException;
+import com.financetracker.model.Transaction;
+import com.financetracker.model.TransactionType;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.concurrent.Callable;
+
+@Command(
+        name = &quot;add-expense&quot;,
+        description = &quot;Record a new expense, converting the amount into your base currency.&quot;,
+        mixinStandardHelpOptions = true
+)
+public class AddExpenseCommand implements Callable&lt;Integer&gt; {
+
+    private final AppContext context;
+
+    @Option(names = {&quot;-a&quot;, &quot;--amount&quot;}, required = true, description = &quot;Expense amount (must be &gt; 0)&quot;)
+    private BigDecimal amount;
+
+    @Option(names = {&quot;-c&quot;, &quot;--category&quot;}, required = true, description = &quot;Expense category, e.g. food, rent, transport&quot;)
+    private String category;
+
+    @Option(names = {&quot;--currency&quot;}, description = &quot;Currency of the amount entered (default: your base currency)&quot;)
+    private String currency;
+
+    @Option(names = {&quot;-d&quot;, &quot;--description&quot;}, description = &quot;Optional free-text note&quot;)
+    private String description;
+
+    @Option(names = {&quot;--date&quot;}, description = &quot;Transaction date (yyyy-MM-dd), default: today&quot;)
+    private String date;
+
+<span class="fc" id="L39">    public AddExpenseCommand(AppContext context) {</span>
+<span class="fc" id="L40">        this.context = context;</span>
+<span class="fc" id="L41">    }</span>
+
+    @Override
+    public Integer call() {
+        try {
+            LocalDate txnDate;
+            try {
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">                txnDate = date == null ? null : LocalDate.parse(date);</span>
+<span class="nc" id="L49">            } catch (DateTimeParseException e) {</span>
+<span class="nc" id="L50">                System.err.println(&quot;Error: Invalid date '&quot; + date + &quot;', expected yyyy-MM-dd.&quot;);</span>
+<span class="nc" id="L51">                return 1;</span>
+<span class="fc" id="L52">            }</span>
+<span class="fc" id="L53">            Transaction saved = context.transactionService().recordTransaction(</span>
+                    TransactionType.EXPENSE, amount, currency, category, description, txnDate);
+<span class="fc" id="L55">            System.out.println(&quot;Expense recorded: &quot; + saved);</span>
+<span class="fc" id="L56">            return 0;</span>
+<span class="fc" id="L57">        } catch (ValidationException | ExchangeRateException e) {</span>
+<span class="fc" id="L58">            System.err.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="fc" id="L59">            return 1;</span>
+<span class="nc" id="L60">        } catch (Exception e) {</span>
+<span class="nc" id="L61">            System.err.println(&quot;Unexpected error: &quot; + e.getMessage());</span>
+<span class="nc" id="L62">            return 1;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

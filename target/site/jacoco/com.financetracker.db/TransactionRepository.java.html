@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Personal Finance and Expense Tracker CLI</a> &gt; <a href="index.source.html" class="el_package">com.financetracker.db</a> &gt; <span class="el_source">TransactionRepository.java</span></div><h1>TransactionRepository.java</h1><pre class="source lang-java linenums">package com.financetracker.db;
+
+import com.financetracker.model.Transaction;
+import com.financetracker.model.TransactionType;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * JDBC-backed CRUD/query operations for {@link Transaction} records stored in H2.
+ */
+public class TransactionRepository {
+
+    private final DatabaseManager databaseManager;
+
+<span class="fc" id="L24">    public TransactionRepository(DatabaseManager databaseManager) {</span>
+<span class="fc" id="L25">        this.databaseManager = databaseManager;</span>
+<span class="fc" id="L26">    }</span>
+
+    public Transaction save(Transaction txn) {
+<span class="fc" id="L29">        String sql = &quot;&quot;&quot;</span>
+                INSERT INTO transactions
+                    (type, original_amount, original_currency, converted_amount,
+                     base_currency, category, description, txn_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                &quot;&quot;&quot;;
+<span class="fc" id="L35">        try (PreparedStatement ps = databaseManager.getConnection()</span>
+<span class="fc" id="L36">                .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {</span>
+<span class="fc" id="L37">            ps.setString(1, txn.getType().name());</span>
+<span class="fc" id="L38">            ps.setBigDecimal(2, txn.getOriginalAmount());</span>
+<span class="fc" id="L39">            ps.setString(3, txn.getOriginalCurrency());</span>
+<span class="fc" id="L40">            ps.setBigDecimal(4, txn.getConvertedAmount());</span>
+<span class="fc" id="L41">            ps.setString(5, txn.getBaseCurrency());</span>
+<span class="fc" id="L42">            ps.setString(6, txn.getCategory());</span>
+<span class="fc" id="L43">            ps.setString(7, txn.getDescription());</span>
+<span class="fc" id="L44">            ps.setDate(8, java.sql.Date.valueOf(txn.getDate()));</span>
+<span class="fc" id="L45">            ps.executeUpdate();</span>
+
+<span class="fc" id="L47">            try (ResultSet keys = ps.getGeneratedKeys()) {</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">                if (keys.next()) {</span>
+<span class="fc" id="L49">                    txn.setId(keys.getLong(1));</span>
+                }
+            }
+<span class="fc" id="L52">            return txn;</span>
+<span class="nc" id="L53">        } catch (SQLException e) {</span>
+<span class="nc" id="L54">            throw new IllegalStateException(&quot;Failed to save transaction&quot;, e);</span>
+        }
+    }
+
+    public List&lt;Transaction&gt; findAll() {
+<span class="fc" id="L59">        String sql = &quot;SELECT * FROM transactions ORDER BY txn_date DESC, id DESC&quot;;</span>
+<span class="fc" id="L60">        List&lt;Transaction&gt; results = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L61">        try (Statement statement = databaseManager.getConnection().createStatement();</span>
+<span class="fc" id="L62">             ResultSet rs = statement.executeQuery(sql)) {</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L64">                results.add(map(rs));</span>
+            }
+<span class="fc" id="L66">            return results;</span>
+<span class="nc" id="L67">        } catch (SQLException e) {</span>
+<span class="nc" id="L68">            throw new IllegalStateException(&quot;Failed to fetch transactions&quot;, e);</span>
+        }
+    }
+
+    public Optional&lt;Transaction&gt; findById(long id) {
+<span class="fc" id="L73">        String sql = &quot;SELECT * FROM transactions WHERE id = ?&quot;;</span>
+<span class="fc" id="L74">        try (PreparedStatement ps = databaseManager.getConnection().prepareStatement(sql)) {</span>
+<span class="fc" id="L75">            ps.setLong(1, id);</span>
+<span class="fc" id="L76">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">                if (rs.next()) {</span>
+<span class="fc" id="L78">                    return Optional.of(map(rs));</span>
+                }
+<span class="fc" id="L80">                return Optional.empty();</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">            }</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L83">            throw new IllegalStateException(&quot;Failed to fetch transaction &quot; + id, e);</span>
+        }
+    }
+
+    public List&lt;Transaction&gt; findByFilters(TransactionType type, String category,
+                                            LocalDate from, LocalDate to) {
+<span class="fc" id="L89">        StringBuilder sql = new StringBuilder(&quot;SELECT * FROM transactions WHERE 1=1&quot;);</span>
+<span class="fc" id="L90">        List&lt;Object&gt; params = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (type != null) {</span>
+<span class="fc" id="L93">            sql.append(&quot; AND type = ?&quot;);</span>
+<span class="fc" id="L94">            params.add(type.name());</span>
+        }
+<span class="pc bpc" id="L96" title="1 of 4 branches missed.">        if (category != null &amp;&amp; !category.isBlank()) {</span>
+<span class="fc" id="L97">            sql.append(&quot; AND LOWER(category) = LOWER(?)&quot;);</span>
+<span class="fc" id="L98">            params.add(category);</span>
+        }
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (from != null) {</span>
+<span class="fc" id="L101">            sql.append(&quot; AND txn_date &gt;= ?&quot;);</span>
+<span class="fc" id="L102">            params.add(java.sql.Date.valueOf(from));</span>
+        }
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (to != null) {</span>
+<span class="fc" id="L105">            sql.append(&quot; AND txn_date &lt;= ?&quot;);</span>
+<span class="fc" id="L106">            params.add(java.sql.Date.valueOf(to));</span>
+        }
+<span class="fc" id="L108">        sql.append(&quot; ORDER BY txn_date DESC, id DESC&quot;);</span>
+
+<span class="fc" id="L110">        try (PreparedStatement ps = databaseManager.getConnection().prepareStatement(sql.toString())) {</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">            for (int i = 0; i &lt; params.size(); i++) {</span>
+<span class="fc" id="L112">                ps.setObject(i + 1, params.get(i));</span>
+            }
+<span class="fc" id="L114">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="fc" id="L115">                List&lt;Transaction&gt; results = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">                while (rs.next()) {</span>
+<span class="fc" id="L117">                    results.add(map(rs));</span>
+                }
+<span class="fc" id="L119">                return results;</span>
+            }
+<span class="nc" id="L121">        } catch (SQLException e) {</span>
+<span class="nc" id="L122">            throw new IllegalStateException(&quot;Failed to filter transactions&quot;, e);</span>
+        }
+    }
+
+    public boolean deleteById(long id) {
+<span class="fc" id="L127">        String sql = &quot;DELETE FROM transactions WHERE id = ?&quot;;</span>
+<span class="fc" id="L128">        try (PreparedStatement ps = databaseManager.getConnection().prepareStatement(sql)) {</span>
+<span class="fc" id="L129">            ps.setLong(1, id);</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">            return ps.executeUpdate() &gt; 0;</span>
+<span class="nc" id="L131">        } catch (SQLException e) {</span>
+<span class="nc" id="L132">            throw new IllegalStateException(&quot;Failed to delete transaction &quot; + id, e);</span>
+        }
+    }
+
+    /** Wipes all rows without dropping the table. */
+    public void deleteAll() {
+<span class="fc" id="L138">        try (Statement statement = databaseManager.getConnection().createStatement()) {</span>
+<span class="fc" id="L139">            statement.execute(&quot;DELETE FROM transactions&quot;);</span>
+<span class="nc" id="L140">        } catch (SQLException e) {</span>
+<span class="nc" id="L141">            throw new IllegalStateException(&quot;Failed to clear transactions&quot;, e);</span>
+<span class="fc" id="L142">        }</span>
+<span class="fc" id="L143">    }</span>
+
+    private Transaction map(ResultSet rs) throws SQLException {
+<span class="fc" id="L146">        Transaction txn = new Transaction();</span>
+<span class="fc" id="L147">        txn.setId(rs.getLong(&quot;id&quot;));</span>
+<span class="fc" id="L148">        txn.setType(TransactionType.valueOf(rs.getString(&quot;type&quot;)));</span>
+<span class="fc" id="L149">        txn.setOriginalAmount(rs.getBigDecimal(&quot;original_amount&quot;));</span>
+<span class="fc" id="L150">        txn.setOriginalCurrency(rs.getString(&quot;original_currency&quot;));</span>
+<span class="fc" id="L151">        txn.setConvertedAmount(rs.getBigDecimal(&quot;converted_amount&quot;));</span>
+<span class="fc" id="L152">        txn.setBaseCurrency(rs.getString(&quot;base_currency&quot;));</span>
+<span class="fc" id="L153">        txn.setCategory(rs.getString(&quot;category&quot;));</span>
+<span class="fc" id="L154">        txn.setDescription(rs.getString(&quot;description&quot;));</span>
+<span class="fc" id="L155">        txn.setDate(rs.getDate(&quot;txn_date&quot;).toLocalDate());</span>
+<span class="fc" id="L156">        return txn;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
