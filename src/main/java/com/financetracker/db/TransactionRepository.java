@@ -133,7 +133,6 @@ public class TransactionRepository {
         }
     }
 
-    /** Wipes all rows without dropping the table. */
     public void deleteAll() {
         try (Statement statement = databaseManager.getConnection().createStatement()) {
             statement.execute("DELETE FROM transactions");

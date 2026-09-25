@@ -136,3 +136,7 @@ The base currency is set once per run (through an environment variable, or ZAR b
 change it after the fact, and no concept of multiple accounts, even though the database schema already has tables 
 (accounts, categories) that anticipate that. Right now only the transactions table is actually used.
 
+
+Youtube link:
+https://youtu.be/Rjr1DOSC_iw
+

@@ -58,7 +58,6 @@ public class ExchangeRateService {
         String from = normalize(fromCurrency);
         String to = normalize(toCurrency);
 
-        // Same currency shortcut: enforce 2 decimals
         if (from.equals(to)) {
             return amount.setScale(2, RoundingMode.HALF_UP);
         }

@@ -35,7 +35,6 @@ public class Main {
 
         try {
             if (args.length > 0) {
-                // Batch mode: run exactly one command, then exit (useful for CI / scripting).
                 int exitCode = CliFactory.build(context).execute(args);
                 System.exit(exitCode);
             } else {
@@ -63,10 +62,10 @@ public class Main {
             try {
                 line = reader.readLine();
             } catch (Exception e) {
-                break; // stdin closed
+                break;
             }
             if (line == null) {
-                break; // EOF (e.g. piped input exhausted)
+                break;
             }
             line = line.trim();
             if (line.isEmpty()) {
@@ -89,7 +88,6 @@ public class Main {
             }
         }
     }
-    /** Splits a line into argv tokens, respecting single/double quoted substrings (for --description "..."). */
     static String[] tokenize(String line) {
         List<String> tokens = new ArrayList<>();
         Matcher matcher = TOKEN_PATTERN.matcher(line);

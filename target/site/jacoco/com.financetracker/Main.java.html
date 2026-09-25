@@ -35,74 +35,72 @@ import java.util.regex.Pattern;
 
         try {
 <span class="nc bnc" id="L37" title="All 2 branches missed.">            if (args.length &gt; 0) {</span>
-                // Batch mode: run exactly one command, then exit (useful for CI / scripting).
-<span class="nc" id="L39">                int exitCode = CliFactory.build(context).execute(args);</span>
-<span class="nc" id="L40">                System.exit(exitCode);</span>
-<span class="nc" id="L41">            } else {</span>
-<span class="nc" id="L42">                runInteractive(context, baseCurrency);</span>
+<span class="nc" id="L38">                int exitCode = CliFactory.build(context).execute(args);</span>
+<span class="nc" id="L39">                System.exit(exitCode);</span>
+<span class="nc" id="L40">            } else {</span>
+<span class="nc" id="L41">                runInteractive(context, baseCurrency);</span>
             }
         } finally {
-<span class="nc" id="L45">            context.close();</span>
+<span class="nc" id="L44">            context.close();</span>
         }
-<span class="nc" id="L47">    }</span>
+<span class="nc" id="L46">    }</span>
 
     private static void runInteractive(AppContext context, String baseCurrency) {
-<span class="nc" id="L50">        System.out.println(&quot;Personal Finance &amp; Expense Tracker CLI (interactive mode)&quot;);</span>
-<span class="nc" id="L51">        System.out.println(&quot;Base currency: &quot; + baseCurrency</span>
+<span class="nc" id="L49">        System.out.println(&quot;Personal Finance &amp; Expense Tracker CLI (interactive mode)&quot;);</span>
+<span class="nc" id="L50">        System.out.println(&quot;Base currency: &quot; + baseCurrency</span>
                 + &quot;  (set &quot; + BASE_CURRENCY_ENV + &quot; env var to change)&quot;);
-<span class="nc" id="L53">        System.out.println(&quot;Type a command (add-expense, add-income, list, filter, convert, summary),&quot;);</span>
-<span class="nc" id="L54">        System.out.println(&quot;'help' for details on a command, or 'exit'/'quit' to leave.\n&quot;);</span>
+<span class="nc" id="L52">        System.out.println(&quot;Type a command (add-expense, add-income, list, filter, convert, summary),&quot;);</span>
+<span class="nc" id="L53">        System.out.println(&quot;'help' for details on a command, or 'exit'/'quit' to leave.\n&quot;);</span>
 
-<span class="nc" id="L56">        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));</span>
-<span class="nc" id="L57">        CommandLine cli = CliFactory.build(context);</span>
+<span class="nc" id="L55">        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));</span>
+<span class="nc" id="L56">        CommandLine cli = CliFactory.build(context);</span>
 
         while (true) {
-<span class="nc" id="L60">            System.out.print(&quot;finance-tracker&gt; &quot;);</span>
-<span class="nc" id="L61">            System.out.flush();</span>
+<span class="nc" id="L59">            System.out.print(&quot;finance-tracker&gt; &quot;);</span>
+<span class="nc" id="L60">            System.out.flush();</span>
             String line;
             try {
-<span class="nc" id="L64">                line = reader.readLine();</span>
-<span class="nc" id="L65">            } catch (Exception e) {</span>
-<span class="nc" id="L66">                break; // stdin closed</span>
-<span class="nc" id="L67">            }</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (line == null) {</span>
-<span class="nc" id="L69">                break; // EOF (e.g. piped input exhausted)</span>
+<span class="nc" id="L63">                line = reader.readLine();</span>
+<span class="nc" id="L64">            } catch (Exception e) {</span>
+<span class="nc" id="L65">                break;</span>
+<span class="nc" id="L66">            }</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (line == null) {</span>
+<span class="nc" id="L68">                break;</span>
             }
-<span class="nc" id="L71">            line = line.trim();</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">            if (line.isEmpty()) {</span>
-<span class="nc" id="L73">                continue;</span>
+<span class="nc" id="L70">            line = line.trim();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            if (line.isEmpty()) {</span>
+<span class="nc" id="L72">                continue;</span>
             }
-<span class="nc bnc" id="L75" title="All 4 branches missed.">            if (line.equalsIgnoreCase(&quot;exit&quot;) || line.equalsIgnoreCase(&quot;quit&quot;)) {</span>
-<span class="nc" id="L76">                System.out.println(&quot;Goodbye!&quot;);</span>
-<span class="nc" id="L77">                break;</span>
+<span class="nc bnc" id="L74" title="All 4 branches missed.">            if (line.equalsIgnoreCase(&quot;exit&quot;) || line.equalsIgnoreCase(&quot;quit&quot;)) {</span>
+<span class="nc" id="L75">                System.out.println(&quot;Goodbye!&quot;);</span>
+<span class="nc" id="L76">                break;</span>
             }
-<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (line.equalsIgnoreCase(&quot;help&quot;)) {</span>
-<span class="nc" id="L80">                cli.usage(System.out);</span>
-<span class="nc" id="L81">                continue;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            if (line.equalsIgnoreCase(&quot;help&quot;)) {</span>
+<span class="nc" id="L79">                cli.usage(System.out);</span>
+<span class="nc" id="L80">                continue;</span>
             }
 
-<span class="nc" id="L84">            String[] tokens = tokenize(line);</span>
+<span class="nc" id="L83">            String[] tokens = tokenize(line);</span>
             try {
-<span class="nc" id="L86">                cli.execute(tokens);</span>
-<span class="nc" id="L87">            } catch (Exception e) {</span>
-<span class="nc" id="L88">                System.err.println(&quot;Error: &quot; + e.getMessage());</span>
-<span class="nc" id="L89">            }</span>
-<span class="nc" id="L90">        }</span>
-<span class="nc" id="L91">    }</span>
-    /** Splits a line into argv tokens, respecting single/double quoted substrings (for --description &quot;...&quot;). */
+<span class="nc" id="L85">                cli.execute(tokens);</span>
+<span class="nc" id="L86">            } catch (Exception e) {</span>
+<span class="nc" id="L87">                System.err.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L88">            }</span>
+<span class="nc" id="L89">        }</span>
+<span class="nc" id="L90">    }</span>
     static String[] tokenize(String line) {
-<span class="fc" id="L94">        List&lt;String&gt; tokens = new ArrayList&lt;&gt;();</span>
-<span class="fc" id="L95">        Matcher matcher = TOKEN_PATTERN.matcher(line);</span>
-<span class="fc bfc" id="L96" title="All 2 branches covered.">        while (matcher.find()) {</span>
-<span class="fc bfc" id="L97" title="All 2 branches covered.">            if (matcher.group(1) != null) {</span>
-<span class="fc" id="L98">                tokens.add(matcher.group(1));</span>
-<span class="fc bfc" id="L99" title="All 2 branches covered.">            } else if (matcher.group(2) != null) {</span>
-<span class="fc" id="L100">                tokens.add(matcher.group(2));</span>
+<span class="fc" id="L92">        List&lt;String&gt; tokens = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L93">        Matcher matcher = TOKEN_PATTERN.matcher(line);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        while (matcher.find()) {</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            if (matcher.group(1) != null) {</span>
+<span class="fc" id="L96">                tokens.add(matcher.group(1));</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">            } else if (matcher.group(2) != null) {</span>
+<span class="fc" id="L98">                tokens.add(matcher.group(2));</span>
             } else {
-<span class="fc" id="L102">                tokens.add(matcher.group(3));</span>
+<span class="fc" id="L100">                tokens.add(matcher.group(3));</span>
             }
         }
-<span class="fc" id="L105">        return tokens.toArray(new String[0]);</span>
+<span class="fc" id="L103">        return tokens.toArray(new String[0]);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

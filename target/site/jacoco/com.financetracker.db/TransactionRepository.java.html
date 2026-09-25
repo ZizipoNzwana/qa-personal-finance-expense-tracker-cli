@@ -133,27 +133,26 @@ public class TransactionRepository {
         }
     }
 
-    /** Wipes all rows without dropping the table. */
     public void deleteAll() {
-<span class="fc" id="L138">        try (Statement statement = databaseManager.getConnection().createStatement()) {</span>
-<span class="fc" id="L139">            statement.execute(&quot;DELETE FROM transactions&quot;);</span>
-<span class="nc" id="L140">        } catch (SQLException e) {</span>
-<span class="nc" id="L141">            throw new IllegalStateException(&quot;Failed to clear transactions&quot;, e);</span>
-<span class="fc" id="L142">        }</span>
-<span class="fc" id="L143">    }</span>
+<span class="fc" id="L137">        try (Statement statement = databaseManager.getConnection().createStatement()) {</span>
+<span class="fc" id="L138">            statement.execute(&quot;DELETE FROM transactions&quot;);</span>
+<span class="nc" id="L139">        } catch (SQLException e) {</span>
+<span class="nc" id="L140">            throw new IllegalStateException(&quot;Failed to clear transactions&quot;, e);</span>
+<span class="fc" id="L141">        }</span>
+<span class="fc" id="L142">    }</span>
 
     private Transaction map(ResultSet rs) throws SQLException {
-<span class="fc" id="L146">        Transaction txn = new Transaction();</span>
-<span class="fc" id="L147">        txn.setId(rs.getLong(&quot;id&quot;));</span>
-<span class="fc" id="L148">        txn.setType(TransactionType.valueOf(rs.getString(&quot;type&quot;)));</span>
-<span class="fc" id="L149">        txn.setOriginalAmount(rs.getBigDecimal(&quot;original_amount&quot;));</span>
-<span class="fc" id="L150">        txn.setOriginalCurrency(rs.getString(&quot;original_currency&quot;));</span>
-<span class="fc" id="L151">        txn.setConvertedAmount(rs.getBigDecimal(&quot;converted_amount&quot;));</span>
-<span class="fc" id="L152">        txn.setBaseCurrency(rs.getString(&quot;base_currency&quot;));</span>
-<span class="fc" id="L153">        txn.setCategory(rs.getString(&quot;category&quot;));</span>
-<span class="fc" id="L154">        txn.setDescription(rs.getString(&quot;description&quot;));</span>
-<span class="fc" id="L155">        txn.setDate(rs.getDate(&quot;txn_date&quot;).toLocalDate());</span>
-<span class="fc" id="L156">        return txn;</span>
+<span class="fc" id="L145">        Transaction txn = new Transaction();</span>
+<span class="fc" id="L146">        txn.setId(rs.getLong(&quot;id&quot;));</span>
+<span class="fc" id="L147">        txn.setType(TransactionType.valueOf(rs.getString(&quot;type&quot;)));</span>
+<span class="fc" id="L148">        txn.setOriginalAmount(rs.getBigDecimal(&quot;original_amount&quot;));</span>
+<span class="fc" id="L149">        txn.setOriginalCurrency(rs.getString(&quot;original_currency&quot;));</span>
+<span class="fc" id="L150">        txn.setConvertedAmount(rs.getBigDecimal(&quot;converted_amount&quot;));</span>
+<span class="fc" id="L151">        txn.setBaseCurrency(rs.getString(&quot;base_currency&quot;));</span>
+<span class="fc" id="L152">        txn.setCategory(rs.getString(&quot;category&quot;));</span>
+<span class="fc" id="L153">        txn.setDescription(rs.getString(&quot;description&quot;));</span>
+<span class="fc" id="L154">        txn.setDate(rs.getDate(&quot;txn_date&quot;).toLocalDate());</span>
+<span class="fc" id="L155">        return txn;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

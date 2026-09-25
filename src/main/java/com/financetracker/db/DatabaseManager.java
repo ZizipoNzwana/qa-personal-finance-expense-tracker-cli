@@ -25,11 +25,7 @@ public final class DatabaseManager {
         this(DEFAULT_DB_PATH);
     }
 
-    /** Allows tests the user to point at an alternate file/in-memory database. */
     public DatabaseManager(String dbPath) {
-        // AUTO_SERVER=TRUE lets multiple processes share a file-based database,
-        // but H2 rejects it outright for in-memory databases,
-        // so it's only appended for file-based paths.
         boolean inMemory = dbPath.startsWith("mem:");
         this.jdbcUrl = "jdbc:h2:" + dbPath
                 + (inMemory ? "" : ";AUTO_SERVER=TRUE")

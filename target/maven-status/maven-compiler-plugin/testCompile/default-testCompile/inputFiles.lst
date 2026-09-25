@@ -1,6 +1,6 @@
-/home/zizipo/QA elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/MainTokenizeTest.java
-/home/zizipo/QA elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/cli/CliEndToEndTest.java
-/home/zizipo/QA elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/db/TransactionRepositoryTest.java
-/home/zizipo/QA elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/service/BudgetServiceTest.java
-/home/zizipo/QA elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/service/ExchangeRateServiceTest.java
-/home/zizipo/QA elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/service/TransactionServiceTest.java
+/home/zizipo/QA-elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/MainTokenizeTest.java
+/home/zizipo/QA-elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/cli/CliEndToEndTest.java
+/home/zizipo/QA-elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/db/TransactionRepositoryTest.java
+/home/zizipo/QA-elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/service/BudgetServiceTest.java
+/home/zizipo/QA-elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/service/ExchangeRateServiceTest.java
+/home/zizipo/QA-elective/qa-personal-finance-expense-tracker-cli/src/test/java/com/financetracker/service/TransactionServiceTest.java

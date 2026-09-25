@@ -20,43 +20,41 @@ public class AppContext {
     private final TransactionService transactionService;
     private String baseCurrency;
 
-    public AppContext(String baseCurrency) {
-<span class="nc" id="L24">        this(new DatabaseManager(), new ExchangeRateService(), baseCurrency);</span>
-<span class="nc" id="L25">    }</span>
+<span class="nc" id="L23">    public AppContext(String baseCurrency) {this(new DatabaseManager(), new ExchangeRateService(), baseCurrency);</span>
+<span class="nc" id="L24">    }</span>
 
-    /** Test-friendly constructor allowing injection of a fake/in-memory DB and exchange rate service. */
-<span class="fc" id="L28">    public AppContext(DatabaseManager databaseManager, ExchangeRateService exchangeRateService, String baseCurrency) {</span>
-<span class="fc" id="L29">        this.databaseManager = databaseManager;</span>
-<span class="fc" id="L30">        this.databaseManager.initSchema();</span>
-<span class="fc" id="L31">        this.transactionRepository = new TransactionRepository(databaseManager);</span>
-<span class="fc" id="L32">        this.exchangeRateService = exchangeRateService;</span>
-<span class="fc" id="L33">        this.budgetService = new BudgetService(transactionRepository);</span>
-<span class="fc" id="L34">        this.baseCurrency = baseCurrency.toUpperCase();</span>
-<span class="fc" id="L35">        this.transactionService = new TransactionService(transactionRepository, exchangeRateService, this.baseCurrency);</span>
-<span class="fc" id="L36">    }</span>
+<span class="fc" id="L26">    public AppContext(DatabaseManager databaseManager, ExchangeRateService exchangeRateService, String baseCurrency) {</span>
+<span class="fc" id="L27">        this.databaseManager = databaseManager;</span>
+<span class="fc" id="L28">        this.databaseManager.initSchema();</span>
+<span class="fc" id="L29">        this.transactionRepository = new TransactionRepository(databaseManager);</span>
+<span class="fc" id="L30">        this.exchangeRateService = exchangeRateService;</span>
+<span class="fc" id="L31">        this.budgetService = new BudgetService(transactionRepository);</span>
+<span class="fc" id="L32">        this.baseCurrency = baseCurrency.toUpperCase();</span>
+<span class="fc" id="L33">        this.transactionService = new TransactionService(transactionRepository, exchangeRateService, this.baseCurrency);</span>
+<span class="fc" id="L34">    }</span>
 
     public TransactionRepository transactionRepository() {
-<span class="fc" id="L39">        return transactionRepository;</span>
+<span class="fc" id="L37">        return transactionRepository;</span>
     }
 
     public ExchangeRateService exchangeRateService() {
-<span class="nc" id="L43">        return exchangeRateService;</span>
+<span class="nc" id="L41">        return exchangeRateService;</span>
     }
 
     public BudgetService budgetService() {
-<span class="fc" id="L47">        return budgetService;</span>
+<span class="fc" id="L45">        return budgetService;</span>
     }
 
     public TransactionService transactionService() {
-<span class="fc" id="L51">        return transactionService;</span>
+<span class="fc" id="L49">        return transactionService;</span>
     }
 
     public String baseCurrency() {
-<span class="fc" id="L55">        return baseCurrency;</span>
+<span class="fc" id="L53">        return baseCurrency;</span>
     }
 
     public void close() {
-<span class="fc" id="L59">        databaseManager.close();</span>
-<span class="fc" id="L60">    }</span>
+<span class="fc" id="L57">        databaseManager.close();</span>
+<span class="fc" id="L58">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
